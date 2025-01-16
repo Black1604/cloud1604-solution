@@ -11,6 +11,14 @@ Before beginning the installation, ensure you have:
    - 8GB RAM
    - 50GB storage
    - Ports 22 (SSH), 80 (HTTP), 443 (HTTPS) open in security list
+```bash
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 3000 -j ACCEPT
+sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 9090 -j ACCEPT
+sudo netfilter-persistent save
+sudo systemctl restart apache2
+```
 2. SSH access to your instance
 3. Sudo privileges
 4. Domain name (optional)
