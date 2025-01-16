@@ -142,11 +142,11 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 - Documentation: [GitHub Docs](https://github.com/Black1604/business-solution/docs)
 - Issues: [Submit here](https://github.com/Black1604/business-solution/issues)
-- Email: <support@cloud1604.com>
+- Email: <admin@cloud1604.com>
 
 **🔒 Security**
 
-If you encounter any security-related issues, please email: <security@cloud1604.com>
+If you encounter any security-related issues, please email: <admin@cloud1604.com>
 
 **📜 License**
 
