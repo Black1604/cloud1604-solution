@@ -41,7 +41,7 @@ Choose the installation method that best suits your needs:
 
 **🔒 Oracle Cloud (Production)**
 
-bash```
+```
 sudo git clone <https://github.com/Black1604/business-solution.git>
 cd cloud1604-solution
 sudo chmod +x scripts/install-oracle.sh
@@ -50,7 +50,7 @@ sudo ./scripts/install-oracle.sh
 
 **🐳 Docker (Development)**
 
-bash ```
+```
 sudo git clone <https://github.com/Black1604/cloud1604-solution.git>
 cd business-solution
 sudo cp .env.production .env
@@ -84,26 +84,26 @@ sudo docker-compose up -d
 
 1. **Clone the repository:**
 
-bash```
+```
 sudo git clone <https://github.com/Black1604/business-solution.git>
 cd business-solution
 ```
 
 1. **Install dependencies:**
 
-bash```
+```
 npm install
 ```
 
 1. **Set up environment:**
 
-bash```
+```
 sudo cp .env.production .env
 ```
 
 1. **Start development server:**
 
-bash```
+```
 npm run dev
 ```
 
