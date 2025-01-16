@@ -21,8 +21,8 @@ Before beginning the installation, ensure you have:
 First, we'll generate secure passwords for our services. Download and run the password generation script:
 
 ```bash
-wget https://raw.githubusercontent.com/Black1604/business-solution/main/scripts/generate-passwords.sh
-chmod +x generate-passwords.sh
+sudo wget https://raw.githubusercontent.com/Black1604/cloud1604-solution/main/scripts/generate-passwords.sh
+sudo chmod +x generate-passwords.sh
 ./generate-passwords.sh
 ```
 
@@ -41,8 +41,8 @@ sudo apt upgrade -y
 
 ### 1. PostgreSQL Setup
 ```bash
-wget https://raw.githubusercontent.com/Black1604/business-solution/main/scripts/setup-postgresql.sh
-chmod +x setup-postgresql.sh
+sudo wget https://raw.githubusercontent.com/Black1604/cloud1604-solution/main/scripts/setup-postgresql.sh
+sudo chmod +x setup-postgresql.sh
 sudo ./setup-postgresql.sh
 ```
 
@@ -54,21 +54,21 @@ psql --version
 
 ### 2. Redis Setup
 ```bash
-wget https://raw.githubusercontent.com/Black1604/business-solution/main/scripts/setup-redis.sh
-chmod +x setup-redis.sh
+sudo wget https://raw.githubusercontent.com/Black1604/cloud1604-solution/main/scripts/setup-redis.sh
+sudo chmod +x setup-redis.sh
 sudo ./setup-redis.sh
 ```
 
 Verify Redis installation:
 ```bash
 sudo systemctl status redis
-redis-cli ping
+sudo redis-cli ping
 ```
 
 ### 3. Node.js Setup
 ```bash
-wget https://raw.githubusercontent.com/Black1604/business-solution/main/scripts/setup-nodejs.sh
-chmod +x setup-nodejs.sh
+sudo wget https://raw.githubusercontent.com/Black1604/cloud1604-solution/main/scripts/setup-nodejs.sh
+sudo chmod +x setup-nodejs.sh
 sudo ./setup-nodejs.sh
 ```
 
@@ -81,8 +81,8 @@ pm2 --version
 
 ### 4. (Optional) Monitoring Setup
 ```bash
-wget https://raw.githubusercontent.com/Black1604/business-solution/main/scripts/setup-monitoring.sh
-chmod +x setup-monitoring.sh
+sudo wget https://raw.githubusercontent.com/Black1604/cloud1604-solution/main/scripts/setup-monitoring.sh
+sudo chmod +x setup-monitoring.sh
 sudo ./setup-monitoring.sh
 ```
 
@@ -96,13 +96,14 @@ sudo systemctl status grafana-server
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Black1604/business-solution.git
-cd business-solution
+sudo apt install git zip unzip
+sudo git clone https://github.com/Black1604/cloud1604-solution.git
+cd cloud-solution
 ```
 
 ### 2. Configure Environment
 ```bash
-cp .env.example .env
+sudo cp .env.production .env
 nano .env
 ```
 
@@ -114,14 +115,14 @@ Update the following in your .env file:
 
 ### 3. Install Dependencies and Build
 ```bash
-npm install
-npm run build
+sudo npm install
+sudo npm run build
 ```
 
 ### 4. Start Application
 ```bash
-pm2 start npm --name "cloud1604-business-solution" -- start
-pm2 save
+sudo pm2 start npm --name "cloud1604-business-solution" -- start
+sudo pm2 save
 ```
 
 ### 5. Configure Nginx
@@ -159,12 +160,19 @@ If you have a domain name:
 sudo apt install certbot python3-certbot-nginx
 sudo certbot --nginx -d your_domain
 ```
+If you have a domain name:
+```bash
+cd cloud1604-solution/scripts/
+ls -l setup-self-signed-ssl.sh
+sudo chmod +x setup-self-signed-ssl.sh
+sudo ./setup-self-signed-ssl.sh
+```
 
 ## Verification Steps
 
 1. Check application status:
 ```bash
-pm2 status
+sudo pm2 status
 ```
 
 2. Verify web access:
@@ -173,7 +181,7 @@ pm2 status
 
 3. Check logs:
 ```bash
-pm2 logs cloud1604-business-solution
+sudo pm2 logs cloud1604-business-solution
 ```
 
 ## Troubleshooting
