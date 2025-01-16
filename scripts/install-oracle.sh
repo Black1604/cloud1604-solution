@@ -74,7 +74,7 @@ systemctl restart redis-server
 
 # Clone application
 log "Cloning application..."
-git clone https://github.com/Black1604/business-solution.git "$APP_DIR"
+git clone https://github.com/Black1604/cloud1604-solution.git "$APP_DIR"
 cd "$APP_DIR"
 
 # Create environment file
