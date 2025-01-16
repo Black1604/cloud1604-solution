@@ -41,31 +41,20 @@ Choose the installation method that best suits your needs:
 
 **🔒 Oracle Cloud (Production)**
 
-bash
-
-CopyEdit
-
-git clone <https://github.com/Black1604/business-solution.git>
-
-cd business-solution
-
-chmod +x scripts/install-oracle.sh
-
+bash```
+sudo git clone <https://github.com/Black1604/business-solution.git>
+cd cloud1604-solution
+sudo chmod +x scripts/install-oracle.sh
 sudo ./scripts/install-oracle.sh
+```
 
 **🐳 Docker (Development)**
 
-bash
-
-CopyEdit
-
-git clone <https://github.com/Black1604/business-solution.git>
-
+bash ```
+sudo git clone <https://github.com/Black1604/cloud1604-solution.git>
 cd business-solution
-
-cp .env.docker.example .env
-
-docker-compose up -d
+sudo cp .env.production .env
+sudo docker-compose up -d
 
 **💻 Tech Stack**
 
@@ -94,37 +83,28 @@ docker-compose up -d
 
 1. **Clone the repository:**
 
-bash
-
-CopyEdit
-
-git clone <https://github.com/Black1604/business-solution.git>
-
+bash```
+sudo git clone <https://github.com/Black1604/business-solution.git>
 cd business-solution
+```
 
 1. **Install dependencies:**
 
-bash
-
-CopyEdit
-
+bash```
 npm install
+```
 
 1. **Set up environment:**
 
-bash
-
-CopyEdit
-
-cp .env.example .env
+bash```
+sudo cp .env.production .env
+```
 
 1. **Start development server:**
 
-bash
-
-CopyEdit
-
+bash```
 npm run dev
+```
 
 **🤝 Contributing**
 
@@ -140,8 +120,8 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 💡 **Need help?**
 
-- Documentation: [GitHub Docs](https://github.com/Black1604/business-solution/docs)
-- Issues: [Submit here](https://github.com/Black1604/business-solution/issues)
+- Documentation: [GitHub Docs](https://github.com/Black1604/cloud-solution/docs)
+- Issues: [Submit here](https://github.com/Black1604/cloudsolution/issues)
 - Email: <admin@cloud1604.com>
 
 **🔒 Security**
