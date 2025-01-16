@@ -33,19 +33,21 @@ Customizable setup
 Suitable for custom environments
 🏃‍♂️ Quick Start
 🔒 Oracle Cloud (Production)
-bash```
+bash
+Copy
+Edit
 git clone https://github.com/Black1604/business-solution.git
 cd business-solution
 chmod +x scripts/install-oracle.sh
 sudo ./scripts/install-oracle.sh
-```
 🐳 Docker (Development)
-bash```
+bash
+Copy
+Edit
 git clone https://github.com/Black1604/business-solution.git
 cd business-solution
 cp .env.docker.example .env
 docker-compose up -d
-```
 💻 Tech Stack
 Frontend: Next.js 14, React, Tailwind CSS, Radix UI
 Backend: Node.js, PostgreSQL, Redis
@@ -67,26 +69,26 @@ Security Guide: Security best practices
 Troubleshooting: Common issues and fixes
 🛠️ Development
 Clone the repository:
-bash```
+bash
+Copy
+Edit
 git clone https://github.com/Black1604/business-solution.git
 cd business-solution
-```
-
 Install dependencies:
-bash```
+bash
+Copy
+Edit
 npm install
-```
-
 Set up environment:
-bash```
+bash
+Copy
+Edit
 cp .env.example .env
-```
-
 Start development server:
-bash```
+bash
+Copy
+Edit
 npm run dev
-```
-
 🤝 Contributing
 Fork the repository
 Create your feature branch
@@ -100,10 +102,9 @@ See CONTRIBUTING.md for detailed guidelines.
 
 Documentation: GitHub Docs
 Issues: Submit here
-Email: support@cloud1604.co.za
+Email: support@cloud1604.com
 🔒 Security
-If you encounter any security-related issues, please email: adminy@cloud1604.co.za
+If you encounter any security-related issues, please email: security@cloud1604.com
 
 📜 License
 This project is licensed under the MIT License. See the LICENSE file for details.
-
