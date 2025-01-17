@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User Management
+model User {
+  id            String    @id @default(cuid())
+  username      String    @unique
+  name          String?
+  password      String
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isActive      Boolean   @default(true)
+  quotations    Quotation[]
+  salesOrders   SalesOrder[]
+  inventoryOrders InventoryOrder[]
+  invoices      Invoice[]
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  SALES_OFFICER
+  STOCK_CONTROLLER
+  FINANCE
+  USER
+}
+
+// Inventory Management
+model Product {
+  id            String    @id @default(cuid())
+  sku           String    @unique
+  name          String
+  description   String?
+  price         Decimal   @db.Decimal(10, 2)
+  stockLevel    Int       @default(0)
+  minStockLevel Int       @default(10)
+  category      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  quotationItems QuotationItem[]
+  orderItems    OrderItem[]
+  inventoryOrderItems InventoryOrderItem[]
+  invoiceItems  InvoiceItem[]  // Added this line
+}
+
+model InventoryOrder {
+  id            String    @id @default(cuid())
+  orderNumber   String    @unique
+  status        OrderStatus
+  createdBy     User      @relation(fields: [userId], references: [id])
+  userId        String
+  supplier      String
+  orderDate     DateTime  @default(now())
+  deliveryDate  DateTime?
+  items         InventoryOrderItem[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  total         Decimal   @db.Decimal(10, 2)
+}
+
+model InventoryOrderItem {
+  id              String    @id @default(cuid())
+  inventoryOrder  InventoryOrder @relation(fields: [inventoryOrderId], references: [id])
+  inventoryOrderId String
+  product         Product   @relation(fields: [productId], references: [id])
+  productId       String
+  quantity        Int
+  unitPrice       Decimal   @db.Decimal(10, 2)
+  total           Decimal   @db.Decimal(10, 2)
+}
+
+// Sales Management
+model Quotation {
+  id              String    @id @default(cuid())
+  quotationNumber String    @unique
+  status          QuotationStatus @default(DRAFT)
+  createdBy       User      @relation(fields: [userId], references: [id])
+  userId          String
+  customerName    String
+  customerEmail   String?
+  validUntil      DateTime
+  items           QuotationItem[]
+  salesOrder      SalesOrder?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  total           Decimal   @db.Decimal(10, 2)
+  notes           String?
+  terms           String?
+}
+
+model QuotationItem {
+  id            String    @id @default(cuid())
+  quotation     Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  quotationId   String
+  product       Product   @relation(fields: [productId], references: [id])
+  productId     String
+  quantity      Int
+  unitPrice     Decimal   @db.Decimal(10, 2)
+  total         Decimal   @db.Decimal(10, 2)
+  notes         String?
+}
+
+model SalesOrder {
+  id            String    @id @default(cuid())
+  orderNumber   String    @unique
+  status        OrderStatus
+  quotation     Quotation @relation(fields: [quotationId], references: [id])
+  quotationId   String    @unique
+  createdBy     User      @relation(fields: [userId], references: [id])
+  userId        String
+  customerName  String
+  customerEmail String?
+  orderDate     DateTime  @default(now())
+  deliveryDate  DateTime?
+  items         OrderItem[]
+  invoice       Invoice?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  total         Decimal   @db.Decimal(10, 2)
+  notes         String?
+  terms         String?
+}
+
+model OrderItem {
+  id            String    @id @default(cuid())
+  salesOrder    SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  salesOrderId  String
+  product       Product   @relation(fields: [productId], references: [id])
+  productId     String
+  quantity      Int
+  unitPrice     Decimal   @db.Decimal(10, 2)
+  total         Decimal   @db.Decimal(10, 2)
+  notes         String?
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  salesOrder    SalesOrder    @relation(fields: [salesOrderId], references: [id])
+  salesOrderId  String        @unique
+  userId        String
+  createdBy     User          @relation(fields: [userId], references: [id])
+  status        InvoiceStatus @default(DRAFT)
+  dueDate       DateTime
+  notes         String?
+  terms         String?
+  total         Decimal       @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  items         InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  invoiceId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  productId   String
+  quantity    Int
+  unitPrice   Decimal
+  total       Decimal
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([invoiceId])
+  @@index([productId])
+}
+
+enum QuotationStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CONVERTED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
