@@ -18,18 +18,28 @@ generate_password() {
 POSTGRES_PASSWORD=$(generate_password)
 REDIS_PASSWORD=$(generate_password)
 NEXTAUTH_SECRET=$(generate_password)
+ADMIN_PASSWORD=$(generate_password)
 
-# Create .env file with passwords
-cat > .env << EOF
-# Database
-DATABASE_URL="postgresql://app_user:${POSTGRES_PASSWORD}@localhost:5432/business_solution?sslmode=verify-full"
+# Export passwords as environment variables
+export POSTGRES_PASSWORD
+export REDIS_PASSWORD
+export NEXTAUTH_SECRET
+export ADMIN_PASSWORD
 
-# Redis
-REDIS_URL="redis://:${REDIS_PASSWORD}@localhost:6379"
+# Save passwords to a secure file
+cat > /root/.app_credentials << EOF
+Application Credentials
+----------------------
+Database User: app_user
+Database Password: $POSTGRES_PASSWORD
+Redis Password: $REDIS_PASSWORD
+NextAuth Secret: $NEXTAUTH_SECRET
+Admin Username: admin
+Admin Password: $ADMIN_PASSWORD
 
-# NextAuth
-NEXTAUTH_SECRET="${NEXTAUTH_SECRET}"
+Important: Change these passwords after installation!
 EOF
+chmod 600 /root/.app_credentials
 
 # Print passwords (for manual configuration)
 log "Generated secure passwords:"
@@ -37,10 +47,11 @@ echo
 echo "PostgreSQL Password: $POSTGRES_PASSWORD"
 echo "Redis Password: $REDIS_PASSWORD"
 echo "NextAuth Secret: $NEXTAUTH_SECRET"
+echo "Admin Password: $ADMIN_PASSWORD"
 echo
-log "These passwords have been saved to .env"
+log "These passwords have been saved to /root/.app_credentials"
 log "Make sure to:"
-log "1. Use the PostgreSQL password when running setup-postgresql.sh"
-log "2. Use the Redis password when running setup-redis.sh"
+log "1. Use the PostgreSQL password when configuring the database"
+log "2. Use the Redis password when configuring Redis"
 log "3. Keep these passwords in a secure location"
-log "4. Delete this terminal output after noting the passwords" 
+log "4. Delete this terminal output after noting the passwords"
