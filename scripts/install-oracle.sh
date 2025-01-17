@@ -16,6 +16,7 @@ log() {
 
 error() {
     echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}"
+    exit 1
 }
 
 warning() {
@@ -32,16 +33,11 @@ UPLOAD_DIR="/var/uploads/$APP_NAME"
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then 
     error "Please run as root"
-    exit 1
 fi
 
 # Create necessary directories
 log "Creating application directories..."
 mkdir -p "$APP_DIR" "$BACKUP_DIR" "$LOG_DIR" "$UPLOAD_DIR"
-
-# Update system
-log "Updating system packages..."
-apt update && apt upgrade -y
 
 # Install system dependencies
 log "Installing system dependencies..."
@@ -52,17 +48,12 @@ log "Installing Node.js..."
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt install -y nodejs
 npm install -g pm2
-pm2 startup ubuntu
-
-# Generate secure passwords
-log "Generating secure passwords..."
-DB_PASSWORD=$(openssl rand -base64 32)
-REDIS_PASSWORD=$(openssl rand -base64 32)
-NEXTAUTH_SECRET=$(openssl rand -base64 32)
-ADMIN_PASSWORD=$(openssl rand -base64 12)
+pm2 startup systemd -u root --hp /root
 
 # Configure PostgreSQL
 log "Configuring PostgreSQL..."
+systemctl start postgresql
+systemctl enable postgresql
 sudo -u postgres psql -c "CREATE DATABASE business_solution;"
 sudo -u postgres psql -c "CREATE USER app_user WITH ENCRYPTED PASSWORD '$DB_PASSWORD';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE business_solution TO app_user;"
@@ -72,35 +63,9 @@ log "Configuring Redis..."
 sed -i "s/# requirepass foobared/requirepass $REDIS_PASSWORD/" /etc/redis/redis.conf
 systemctl restart redis-server
 
-# Clone application
-log "Cloning application..."
-git clone https://github.com/Black1604/cloud1604-solution.git "$APP_DIR"
-cd "$APP_DIR"
-
-# Create environment file
-log "Creating environment file..."
-cat > .env.production << EOF
-# Environment
-NODE_ENV=production
-APP_NAME="Business Solution System"
-NEXTAUTH_URL=http://localhost
-NEXTAUTH_SECRET=$NEXTAUTH_SECRET
-
-# Database
-DATABASE_URL="postgresql://app_user:$DB_PASSWORD@localhost:5432/business_solution?schema=public"
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=$REDIS_PASSWORD
-
-# File Storage
-UPLOAD_PATH=$UPLOAD_DIR
-
-# Logging
-LOG_LEVEL=info
-LOG_PATH=$LOG_DIR
-EOF
+# Fix permissions for node_modules/.bin
+log "Fixing permissions for node_modules/.bin..."
+chmod -R 755 node_modules/.bin
 
 # Install dependencies
 log "Installing application dependencies..."
@@ -132,7 +97,21 @@ log "Configuring Nginx..."
 cat > /etc/nginx/sites-available/$APP_NAME << EOF
 server {
     listen 80;
-    server_name _;
+    server_name $IP_ADDRESS;
+    return 301 https://\$server_name\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name $IP_ADDRESS;
+
+    ssl_certificate /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -141,13 +120,18 @@ server {
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host \$host;
         proxy_cache_bypass \$http_upgrade;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF
 
+# Enable site and restart Nginx
+log "Enabling site and restarting Nginx..."
 ln -sf /etc/nginx/sites-available/$APP_NAME /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+nginx -t && systemctl restart nginx
 
 # Save credentials
 log "Saving credentials..."
@@ -165,17 +149,9 @@ Important: Change these passwords after installation!
 EOF
 chmod 600 /root/.app_credentials
 
-# Setup monitoring (optional)
-log "Setting up monitoring..."
-./scripts/setup-monitoring.sh
-
-# Setup backup script
-log "Setting up backup script..."
-./scripts/setup-backup.sh
-
 # Final steps
 log "Installation completed successfully!"
-log "Access your application at: http://your-server-ip"
+log "Access your application at: https://$IP_ADDRESS"
 log "Admin credentials have been saved to: /root/.app_credentials"
 log "Please change the admin password after first login!"
 
@@ -191,8 +167,8 @@ Installation Summary:
 - Status: Success
 
 Next Steps:
-1. Configure SSL/TLS (recommended)
+1. Configure SSL/TLS (if not already done)
 2. Change default passwords
 3. Configure email settings
 4. Set up domain name
-" 
+"
