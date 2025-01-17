@@ -106,20 +106,41 @@ update_env_files() {
     fi
 }
 
-# Step 6: Run the Installation Script
+# Step 6: Configure Redis
+configure_redis() {
+    log "Configuring Redis..."
+    sudo sed -i 's/bind 127.0.0.1 ::1/bind 127.0.0.1/g' /etc/redis/redis.conf
+    sudo sed -i "s/# requirepass .*/requirepass $REDIS_PASSWORD/g" /etc/redis/redis.conf
+
+    log "Creating Redis data directory..."
+    sudo mkdir -p /var/lib/redis
+    sudo chown redis:redis /var/lib/redis
+    sudo chmod 700 /var/lib/redis
+
+    log "Restarting Redis..."
+    sudo systemctl restart redis-server.service
+
+    if ! systemctl is-active --quiet redis-server.service; then
+        error "Redis failed to start. Check logs for details."
+    else
+        log "Redis configured and running."
+    fi
+}
+
+# Step 7: Run the Installation Script
 run_installation() {
     log "Running the installation script..."
     cd /var/www/business-solution
     sudo ./install-oracle.sh
 }
 
-# Step 7: Set Up Self-Signed SSL
+# Step 8: Set Up Self-Signed SSL
 setup_ssl() {
     log "Setting up self-signed SSL..."
     /var/www/business-solution/scripts/setup-self-signed-ssl.sh "$IP_ADDRESS"
 }
 
-# Step 8: Download CA Certificate
+# Step 9: Download CA Certificate
 download_ca_cert() {
     log "Downloading CA certificate..."
     if [ -f "/etc/nginx/ssl/ca.crt" ]; then
@@ -130,7 +151,7 @@ download_ca_cert() {
     fi
 }
 
-# Step 9: Provide Instructions for Trusting the Certificate
+# Step 10: Provide Instructions for Trusting the Certificate
 trust_ca_cert() {
     log "Follow these steps to trust the CA certificate:"
     echo "
@@ -164,16 +185,19 @@ get_ip
 # Step 5: Update Environment Files
 update_env_files
 
-# Step 6: Run the Installation Script
+# Step 6: Configure Redis
+configure_redis
+
+# Step 7: Run the Installation Script
 run_installation
 
-# Step 7: Set Up Self-Signed SSL
+# Step 8: Set Up Self-Signed SSL
 setup_ssl
 
-# Step 8: Download CA Certificate
+# Step 9: Download CA Certificate
 download_ca_cert
 
-# Step 9: Provide Instructions for Trusting the Certificate
+# Step 10: Provide Instructions for Trusting the Certificate
 trust_ca_cert
 
 log "Setup completed successfully!"
